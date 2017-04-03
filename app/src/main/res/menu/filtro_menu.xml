@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/original"
+          android:title="Original"
+          app:showAsAction="ifRoom"/>
+       <item android:title="Grises"
+             android:id="@+id/grises"
+             app:showAsAction="never" />
+       <item android:title="Sepia"
+             android:id="@+id/sepia"
+             app:showAsAction="never" />
+       <item android:title="Marco 1"
+             android:id="@+id/marco1"
+             app:showAsAction="never" />
+       <item android:title="Marco 2"
+             android:id="@+id/marco2"
+             app:showAsAction="never" />
+
+
+</menu>
