@@ -3,12 +3,6 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:orientation="vertical" >
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        android:layout_gravity="center_horizontal"/>
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,30 +20,43 @@
             android:layout_height="wrap_content"
             android:text="Sacar Foto"
             android:onClick="onSacarFoto" />
-
-<!--
-        <Button
-            android:id="@+id/btnReset"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Original"
-            android:onClick="onResetImagen" />
-        <Button
-            android:id="@+id/btnConvertGris"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Grises"
-            android:onClick="onConvertirGrises" />
-        <Button
-            android:id="@+id/btnConvertSepia"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sepia"
-            android:onClick="onConvertirSepia" />
--->
-
     </LinearLayout>
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        android:layout_gravity="center_horizontal"/>
+    <TextView android:id="@+id/lblName"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:textColor="@color/colorPrimary"
+              android:textSize="20dp"
+              android:text="Sesión no iniciada"
+              android:padding="8dp"
+              />
+    <EditText android:id="@+id/textComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:hint="Comenta..."/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+        <Button android:id="@+id/btnMandarMensaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:text="Mandar Mensaje"
+                android:onClick="onMandarMensaje"/>
+        <Button android:id="@+id/btnMandarImagen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:text="Mandar Foto"
+                android:onClick="onMandarImage"/>
+    </LinearLayout>
+
 </LinearLayout>

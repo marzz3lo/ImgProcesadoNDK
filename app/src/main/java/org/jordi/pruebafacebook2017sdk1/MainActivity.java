@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.MediaStore;
@@ -14,18 +15,28 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.w3c.dom.Text;
+
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmapMarco1 = null;
     private Bitmap bitmapMarco2 = null;
     private ImageView ivDisplay = null;
-
+    private EditText editComment = null;
+    private TextView txtName = null;
+    private Button btnSendMessage = null;
+    private Button btnSendPhoto = null;
+    private AccessTokenTracker accessTokenTracker;
 
     LoginButton loginButtonOficial;
     private CallbackManager elCallbackManagerDeFacebook;
@@ -67,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.i(tag, "Imagen antes de modificar");
         ivDisplay = (ImageView) findViewById(R.id.ivDisplay);
+        editComment = (EditText) findViewById(R.id.textComment);
+        txtName = (TextView) findViewById(R.id.lblName);
+        btnSendMessage = (Button) findViewById(R.id.btnMandarMensaje);
+        btnSendPhoto = (Button) findViewById(R.id.btnMandarImagen);
 
         loginButtonOficial = (LoginButton) findViewById(R.id.login_button);
         loginButtonOficial.setPublishPermissions("publish_actions");
@@ -95,11 +114,52 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken,
+                                                       AccessToken currentAccessToken) {
+                if (currentAccessToken == null) {
+                    actualizarVentanita();
+                }
+            }
+        };
+        accessTokenTracker.startTracking();
         this.actualizarVentanita();
 
     }
 
+    public void onMandarMensaje(View w) {
+        final String textoQueEnviar = editComment.getText().toString();
 
+        Bundle params = new Bundle();
+        params.putString("message", textoQueEnviar);
+
+        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/feed", params, HttpMethod.POST, new GraphRequest.Callback() {
+            public void onCompleted(GraphResponse response) {
+                Toast.makeText(THIS, "Publicación realizada: " + textoQueEnviar, Toast.LENGTH_LONG).show();
+            }
+        });
+        request.executeAsync();
+    }
+
+    public void onMandarImage(View v) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Bitmap bitmap = ((BitmapDrawable) ivDisplay.getDrawable()).getBitmap();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+        final byte[] byteArray = stream.toByteArray();
+
+        Bundle params = new Bundle();
+        params.putByteArray("source", byteArray);
+        params.putString("caption", editComment.getText().toString());
+
+        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/photos", params, HttpMethod.POST, new GraphRequest.Callback() {
+            public void onCompleted(GraphResponse response) {
+                Toast.makeText(THIS, "" + byteArray.length + " Foto enviada: " + response.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+        request.executeAsync();
+    }
 
     public void ResetImagen() {
         Log.i(tag, "Resetear Imagen");
@@ -154,29 +214,29 @@ public class MainActivity extends AppCompatActivity {
         this.elCallbackManagerDeFacebook.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void actualizarVentanita()
-    {
+    private void actualizarVentanita() {
         AccessToken accessToken = this.obtenerAccessToken();
 
-        if (accessToken== null)
-        {
-
+        if (accessToken == null) {
+            this.btnSendMessage.setEnabled(false);
+            this.btnSendPhoto.setEnabled(false);
+            this.editComment.setEnabled(false);
+            this.txtName.setText("Sesión no iniciada");
+            return;
         }
 //
 // sí hay sesión
 //
         Log.d("cuandrav.actualizarVent", "hay sesion habilito");
-        //this.botonHacerLogin.setEnabled(false);
-//        this.botonLogOut.setEnabled(true);
-//        this.textoConElMensaje.setEnabled(true);
-//        this.botonCompartir.setEnabled(true);
-//        this.botonEnviarFoto.setEnabled(true);
-//
+        this.btnSendMessage.setEnabled(true);
+        this.btnSendPhoto.setEnabled(true);
+        this.editComment.setEnabled(true);
+
 // averiguo los datos básicos del usuario acreditado
 //
         Profile profile = Profile.getCurrentProfile();
         if (profile != null) {
-//            this.textoConElMensaje.setText(profile.getName());
+            this.txtName.setText("Bienvenido(a), " + profile.getName() + "!");
         }
     }
 
@@ -186,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
 
-        if (! this.tengoPermisoParaPublicar()) {
+        if (!this.tengoPermisoParaPublicar()) {
             Toast.makeText(this, "¿no tengo permisos para publicar? Los pido.", Toast.LENGTH_LONG).show();
             LoginManager.getInstance().logInWithPublishPermissions(this, Arrays.asList("publish_actions"));
             return false;
@@ -211,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken obtenerAccessToken() {
         return AccessToken.getCurrentAccessToken();
     }
-
 
 
     @Override
